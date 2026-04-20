@@ -33,20 +33,23 @@
         }
 
         /* Rozvržení: křížovka vlevo, nápovědy vpravo */
-        .main-container {
+       .main-container {
             display: flex;
             flex-wrap: nowrap;
-            justify-content: center;
+            justify-content: flex-start; /* Posune obsah doleva */
             align-items: flex-start;
             gap: 60px;
             max-width: 1200px;
             margin: 0 auto;
+            padding-left: 20px; /* Malý odstup od úplného kraje */
         }
 
         .crossword-section {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            /* Důležité pro škálování na mobilu */
+            transform-origin: top left;
         }
 
         .grid {
@@ -79,6 +82,8 @@
             outline: none;
             color: #121858;
             transition: background-color 0.3s;
+            /* Zamezení zoomování při kliknutí na iOS */
+            font-size: 22px; 
         }
 
         .cell:focus {
@@ -128,6 +133,7 @@
 
         .tajenka-boxes {
             display: flex;
+            flex-wrap: wrap; /* Pro mobilní zalamování tajenky */
             gap: 6px;
             margin-bottom: 25px;
         }
@@ -147,7 +153,6 @@
             text-transform: uppercase;
         }
 
-        /* BOX S VYSVĚTLENÍM POD TAJENKOU */
         #definition-box {
             max-height: 0;
             overflow: hidden;
@@ -170,7 +175,7 @@
         }
 
         .btn-clear {
-            padding: 8px 18px;
+            padding: 12px 24px; /* Větší tlačítko pro palec */
             border: 1px solid #c9d0d8;
             background-color: #fff;
             color: #6c7b95;
@@ -180,7 +185,6 @@
             transition: background-color 0.2s;
         }
 
-        /* NÁPOVĚDY VPRAVO */
         .clues-section {
             max-width: 450px;
         }
@@ -210,13 +214,60 @@
             font-weight: 700;
             min-width: 25px;
         }
+
+        /* --- RESPONSIVE STYLES --- */
+        @media (max-width: 900px) {
+    .main-container {
+        flex-direction: column;
+        align-items: flex-start; /* Zarovná křížovku i nápovědy doleva */
+        gap: 40px;
+        padding-left: 10px;
+    }
+    
+    .header {
+        text-align: left; /* Zarovná i nadpis doleva, pokud chceš celek vlevo */
+        padding-left: 10px;
+    }
+
+    .header h1 {
+        font-size: 32px;
+    }
+
+    .clues-section {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* Extrémní mobilní zobrazení */
+@media (max-width: 500px) {
+    body {
+        padding: 20px 5px;
+    }
+
+    .crossword-section {
+        transform: scale(0.85);
+        transform-origin: top left; /* Škálování začne vlevo, neuprostřed */
+        width: 100%; 
+        margin-left: 0; /* Zrušení centrovacího záporného marginu */
+    }
+
+    .tajenka-boxes {
+        justify-content: flex-start;
+    }
+
+    .tajenka-box, .cell-wrapper {
+        width: 38px;
+        height: 38px;
+    }
+}
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>Křížovka</h1>
-        <p>Účtování dlouhodobého majetku</p>
+        <h1>Křížovka DHM</h1>
+        
     </div>
 
     <div class="main-container">
