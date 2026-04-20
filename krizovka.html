@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Křížovka - Dlouhodobý majetek</title>
+    <style>
+        body {
+            background-color: #cef193;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            color: #7e9f1b;
+            font-size: 42px;
+            font-weight: 900;
+            margin: 0 0 10px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: #6c7b95;
+            font-size: 18px;
+            margin: 0;
+        }
+
+        /* Rozvržení: křížovka vlevo, nápovědy vpravo */
+        .main-container {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .crossword-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0px;
+            margin-bottom: 30px;
+        }
+
+        .row {
+            display: flex;
+        }
+
+        .cell-wrapper {
+            position: relative;
+            width: 42px;
+            height: 42px;
+            margin: -1px 0 0 -1px;
+        }
+
+        .cell {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #000000;
+            background-color: #e1dcdc;
+            text-align: center;
+            font-size: 22px;
+            text-transform: uppercase;
+            box-sizing: border-box;
+            outline: none;
+            color: #121858;
+            transition: background-color 0.3s;
+        }
+
+        .cell:focus {
+            border: 2px solid #000000;
+            z-index: 2;
+        }
+
+        .cell.yellow {
+            background-color: #d3ef1f;
+        }
+
+        .cell.correct {
+            background-color: #a8e6a1 !important;
+        }
+
+        .cell.wrong {
+            background-color: #ffadad !important;
+        }
+
+        .cell-wrapper.hidden {
+            visibility: hidden;
+        }
+
+        .number {
+            position: absolute;
+            top: 2px;
+            left: 4px;
+            font-size: 11px;
+            color: #2a2929;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .tajenka-section {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .tajenka-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #2f2f2f;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tajenka-boxes {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 25px;
+        }
+
+        .tajenka-box {
+            width: 42px;
+            height: 42px;
+            border: 1px solid #000000;
+            background-color: #fffef8;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: #121858;
+            text-transform: uppercase;
+        }
+
+        /* BOX S VYSVĚTLENÍM POD TAJENKOU */
+        #definition-box {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.5s ease-in-out;
+            background-color: #fff;
+            border-left: 4px solid #7e9f1b;
+            padding: 0 15px;
+            margin-bottom: 25px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #2d3748;
+            max-width: 450px;
+        }
+
+        #definition-box.visible {
+            max-height: 200px;
+            opacity: 1;
+            padding: 15px;
+        }
+
+        .btn-clear {
+            padding: 8px 18px;
+            border: 1px solid #c9d0d8;
+            background-color: #fff;
+            color: #6c7b95;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        /* NÁPOVĚDY VPRAVO */
+        .clues-section {
+            max-width: 450px;
+        }
+
+        .clues-section h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .clues-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .clue-item {
+            display: flex;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #4a5568;
+        }
+
+        .clue-num {
+            color: #000000;
+            font-weight: 700;
+            min-width: 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Křížovka</h1>
+        <p>Účtování dlouhodobého majetku</p>
+    </div>
+
+    <div class="main-container">
+        
+        <div class="crossword-section">
+            <div class="grid" id="crosswordGrid">
+                <div class="row" data-row="0" data-answer="SAD">
+                    <div class="cell-wrapper hidden"><input type="text" class="cell" disabled></div>
+                    <div class="cell-wrapper"><span class="number">1</span><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell yellow tajenka-source" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                </div>
+                
+                <div class="row" data-row="1" data-answer="HMOTNÝ">
+                    <div class="cell-wrapper hidden"><input type="text" class="cell" disabled></div>
+                    <div class="cell-wrapper"><span class="number">2</span><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell yellow tajenka-source" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                </div>
+
+                <div class="row" data-row="2" data-answer="DOBA">
+                    <div class="cell-wrapper hidden"><input type="text" class="cell" disabled></div>
+                    <div class="cell-wrapper"><span class="number">3</span><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell yellow tajenka-source" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                </div>
+
+                <div class="row" data-row="3" data-answer="STROJ">
+                    <div class="cell-wrapper"><span class="number">4</span><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell yellow tajenka-source" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                </div>
+
+                <div class="row" data-row="4" data-answer="AUTO">
+                    <div class="cell-wrapper"><span class="number">5</span><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell yellow tajenka-source" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                </div>
+
+                <div class="row" data-row="5" data-answer="LICENCE">
+                    <div class="cell-wrapper hidden"><input type="text" class="cell" disabled></div>
+                    <div class="cell-wrapper"><span class="number">6</span><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell yellow tajenka-source" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                </div>
+
+                <div class="row" data-row="6" data-answer="POZEMEK">
+                    <div class="cell-wrapper"><span class="number">7</span><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell yellow tajenka-source" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                </div>
+
+                <div class="row" data-row="7" data-answer="PATENT">
+                    <div class="cell-wrapper hidden"><input type="text" class="cell" disabled></div>
+                    <div class="cell-wrapper"><span class="number">8</span><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell yellow tajenka-source" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                </div>
+
+                <div class="row" data-row="8" data-answer="OCENĚNÍ">
+                    <div class="cell-wrapper hidden"><input type="text" class="cell" disabled></div>
+                    <div class="cell-wrapper"><span class="number">9</span><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell yellow tajenka-source" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                </div>
+
+                <div class="row" data-row="9" data-answer="LEASING">
+                    <div class="cell-wrapper hidden"><input type="text" class="cell" disabled></div>
+                    <div class="cell-wrapper"><span class="number">10</span><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell yellow tajenka-source" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                    <div class="cell-wrapper"><input type="text" class="cell" maxlength="1"></div>
+                </div>
+            </div>
+
+            <div class="tajenka-section">
+                <div class="tajenka-title">Tajenka</div>
+                <div class="tajenka-boxes">
+                    <div class="tajenka-box"></div>
+                    <div class="tajenka-box"></div>
+                    <div class="tajenka-box"></div>
+                    <div class="tajenka-box"></div>
+                    <div class="tajenka-box"></div>
+                    <div class="tajenka-box"></div>
+                    <div class="tajenka-box"></div>
+                    <div class="tajenka-box"></div>
+                    <div class="tajenka-box"></div>
+                    <div class="tajenka-box"></div>
+                </div>
+                
+                <div id="definition-box">
+                    <strong>Amortizace:</strong> Postupné snižování hodnoty majetku (vozidla, strojů) vlivem fyzického opotřebení nebo morálního zastarávání.
+                </div>
+
+                <button class="btn-clear" id="clearBtn">Vymazat vše</button>
+            </div>
+        </div>
+
+        <div class="clues-section">
+            <h3>Nápovědy</h3>
+            <div class="clues-list">
+                <div class="clue-item"><div class="clue-num">1.</div><div class="clue-text">Pěstitelský celek trvalých porostů (např. jablečný...)</div></div>
+                <div class="clue-item"><div class="clue-num">2.</div><div class="clue-text">Druh majetku, na který si můžeme fyzicky sáhnout</div></div>
+                <div class="clue-item"><div class="clue-num">3.</div><div class="clue-text">... odpisování (počet let)</div></div>
+                <div class="clue-item"><div class="clue-num">4.</div><div class="clue-text">Výrobní zařízení v továrně</div></div>
+                <div class="clue-item"><div class="clue-num">5.</div><div class="clue-text">Osobní vůz v majetku firmy</div></div>
+                <div class="clue-item"><div class="clue-num">6.</div><div class="clue-text">Právo na užívání softwaru</div></div>
+                <div class="clue-item"><div class="clue-num">7.</div><div class="clue-text">Majetek, který se neodpisuje (stavební...)</div></div>
+                <div class="clue-item"><div class="clue-num">8.</div><div class="clue-text">Ochranný dokument na vynález</div></div>
+                <div class="clue-item"><div class="clue-num">9.</div><div class="clue-text">Stanovení hodnoty majetku v penězích</div></div>
+                <div class="clue-item"><div class="clue-num">10.</div><div class="clue-text">Financování majetku formou pronájmu</div></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const rows = document.querySelectorAll('.row[data-answer]');
+            const tajenkaBoxes = document.querySelectorAll('.tajenka-box');
+            const allInputs = document.querySelectorAll('input.cell:not([disabled])');
+            const clearBtn = document.getElementById('clearBtn');
+            const definitionBox = document.getElementById('definition-box');
+
+            function checkVictory() {
+                let allCorrect = true;
+                rows.forEach(row => {
+                    const rowInputs = row.querySelectorAll('input.cell:not([disabled])');
+                    const correctInRow = row.querySelectorAll('input.cell.correct').length;
+                    if (correctInRow !== rowInputs.length) {
+                        allCorrect = false;
+                    }
+                });
+
+                if (allCorrect) {
+                    definitionBox.classList.add('visible');
+                } else {
+                    definitionBox.classList.remove('visible');
+                }
+            }
+
+            function checkRow(rowElement) {
+                const answer = rowElement.getAttribute('data-answer').toUpperCase();
+                const inputs = rowElement.querySelectorAll('input.cell:not([disabled])');
+                let currentWord = "";
+                
+                inputs.forEach(input => {
+                    currentWord += input.value.toUpperCase();
+                });
+
+                if (currentWord.length === 0) {
+                    inputs.forEach(input => input.classList.remove('correct', 'wrong'));
+                    return;
+                }
+
+                if (currentWord.length === answer.length) {
+                    if (currentWord === answer) {
+                        inputs.forEach(input => {
+                            input.classList.add('correct');
+                            input.classList.remove('wrong');
+                        });
+                    } else {
+                        inputs.forEach(input => {
+                            input.classList.add('wrong');
+                            input.classList.remove('correct');
+                        });
+                    }
+                } else {
+                    inputs.forEach(input => input.classList.remove('correct', 'wrong'));
+                }
+            }
+
+            allInputs.forEach((input, index) => {
+                input.addEventListener('input', function() {
+                    const parentRow = this.closest('.row');
+                    
+                    if (this.classList.contains('tajenka-source')) {
+                        const rowIndex = parseInt(parentRow.getAttribute('data-row'));
+                        tajenkaBoxes[rowIndex].textContent = this.value.toUpperCase();
+                    }
+
+                    checkRow(parentRow);
+                    checkVictory();
+
+                    if (this.value.length === 1 && index < allInputs.length - 1) {
+                        allInputs[index + 1].focus();
+                    }
+                });
+
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                        allInputs[index - 1].focus();
+                    }
+                });
+            });
+
+            clearBtn.addEventListener('click', () => {
+                allInputs.forEach(input => {
+                    input.value = '';
+                    input.classList.remove('correct', 'wrong');
+                });
+                tajenkaBoxes.forEach(box => {
+                    box.textContent = '';
+                });
+                definitionBox.classList.remove('visible');
+            });
+        });
+    </script>
+</body>
+</html>
