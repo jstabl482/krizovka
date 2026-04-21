@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Křížovka - Dlouhodobý majetek</title>
+    <title>Křížovka - DHM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mogra&display=swap" rel="stylesheet"
+    <title></title>
     <style>
         body {
             background-color: #cef193;
@@ -35,13 +39,14 @@
         /* Rozvržení: křížovka vlevo, nápovědy vpravo */
        .main-container {
             display: flex;
-            flex-wrap: nowrap;
-            justify-content: flex-start; /* Posune obsah doleva */
+            /* row-reverse prohodí pořadí prvků v HTML (nápovědy budou vlevo) */
+            flex-direction: row-reverse; 
+            justify-content: flex-end; /* Přitlačí celek k levé straně */
             align-items: flex-start;
             gap: 60px;
             max-width: 1200px;
             margin: 0 auto;
-            padding-left: 20px; /* Malý odstup od úplného kraje */
+            padding-left: 20px;
         }
 
         .crossword-section {
@@ -186,7 +191,8 @@
         }
 
         .clues-section {
-            max-width: 450px;
+            max-width: 350px;
+            margin-top: -25px;
         }
 
         .clues-section h3 {
@@ -202,11 +208,14 @@
             gap: 16px;
         }
 
+        
+
         .clue-item {
             display: flex;
-            font-size: 14px;
+            font-size: 16px;
             line-height: 1.5;
-            color: #4a5568;
+            color: #17191d;
+            font-family: Mogra;
         }
 
         .clue-num {
@@ -387,7 +396,7 @@
                     <strong>Amortizace:</strong> Postupné snižování hodnoty majetku (vozidla, strojů) vlivem fyzického opotřebení nebo morálního zastarávání.
                 </div>
 
-                <button class="btn-clear" id="clearBtn">Vymazat vše</button>
+                
             </div>
         </div>
 
